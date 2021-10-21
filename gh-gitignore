@@ -1,12 +1,3 @@
-    ###
-    # TODO: replace fzf with grep and provide options to user command-line as 
-    # [x] display possible content of github/gitignore
-    # [x] provide argument for repo NAME
-    # [x] check if jq installed    
-    # labels: "command-line option"
-    # assignees: tst32
-    ###
-
 #!/usr/bin/env bash
 args=("$@")
  if [ $# -eq 0 ]; then
