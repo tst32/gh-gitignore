@@ -1,6 +1,6 @@
 # gh-gitignore
 
-[![Alternate Text]({"https://github.com/tst32/gh-gitignore/blob/44ecbcb0a3ca29477d2a2146522385d391f687bb/screencast.mp4"})]({"https://github.com/tst32/gh-gitignore/blob/44ecbcb0a3ca29477d2a2146522385d391f687bb/screencast.mp4"} "screencast")
+[![Demo screencast](https://github.com/tst32/gh-gitignore/blob/44ecbcb0a3ca29477d2a2146522385d391f687bb/screencast.mp4)](https://github.com/tst32/gh-gitignore/blob/44ecbcb0a3ca29477d2a2146522385d391f687bb/screencast.mp4)
 
 Download `.gitignore` from repowner/repo to current dir. if no provided with -s option default [github/gitignore](https://github.com/github/gitignore) will be used.
 
