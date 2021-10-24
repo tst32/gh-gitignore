@@ -1,10 +1,32 @@
 #!/usr/bin/env bash
+
 args=("$@")
+
+set -e
+
+help() {
+  cat <<EOF
+Info:
+     this bash script copy .gittignore file from  available web source,
+     the default source is github/gitignore 
+     call it right way  with argument < name of .gittignore as node, python, etc > or -h|--help option to show usage
+Dependencies: jq  (https://stedolan.github.io/jq/)
+     comments: @tst32
+EOF
+}
+
+usage(){
+    cat <<EOF
+usage:
+     gh gitignore < name of .gittignore template as node, python, etc > -- will search <name> for download at github/gitignore repository
+     advanced use:
+     gh gitignore -s <repowner/reponame> < name of .gittignore as node, python, etc will search <name> for download at repowner/reponame repository>
+EOF
+}
+
  if [ $# -eq 0 ]; then
-     echo "No arguments supplied, is a bash script to copy .gittignore file from available  source default source is github/gitignore "
-     echo "call wuth argument < name of .gittignore as node, python, etc > or -h|--help option to show usage"
-     echo "comment to @tst32"
-     exit 0
+     help
+     exit 1
  fi
 
 command -v gh >/dev/null 2>&1 || { echo >&2 "require gh (https://cli.github.com/) tool, but it's not installed.  Aborting."; exit 1; }
@@ -12,10 +34,8 @@ command -v jq >/dev/null 2>&1 || { echo >&2 "require jq (https://stedolan.github
 
  argument=${args[0]}
  if  [[ $argument == *"--help"* || $argument == *"-h"* ]]; then
-     echo 'usage: gh gitignore < name of .gittignore as node, python, etc > -- will search <name> for download at github/gitignore repository'
-     echo 'advanced usage: gh gitignore -s <repowner/reponame> < name of .gittignore as node, python, etc will search <name> for download at repowner/reponame repository>'
-     echo 'extension require jq (https://stedolan.github.io/jq/) tool '
- exit 0
+     usage
+ exit 1
  fi
 
  if  [[ $argument == *"--source"* || $argument == *"-s"* ]]; then
@@ -28,7 +48,7 @@ command -v jq >/dev/null 2>&1 || { echo >&2 "require jq (https://stedolan.github
 
  if [[ -z "$REPO" ]]; then
    REPO="github/gitignore"
-   printf "default source github/gitignore, will search for $argument"
+   printf "in default source github/gitignore, will search for $argument"
  fi
 
 CONTENT=$(gh api repos/${REPO}/contents --jq .[].name | grep ".gitignore" |tr '\n' ', ')
