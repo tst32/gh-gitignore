@@ -1,69 +1,90 @@
 #!/usr/bin/env bash
-
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+GREEN='\033[0;32m'
+APPEND=
 args=("$@")
-
+mode='>'
 set -e
 
 help() {
   cat <<EOF
 Info:
-     this bash script copy .gittignore file from  available web source,
-     the default source is github/gitignore 
-     call it right way  with argument < name of .gittignore as node, python, etc > or -h|--help option to show usage
-Dependencies: jq  (https://stedolan.github.io/jq/)
-     comments: @tst32
+     this bash script copy .gitignore file from  available web source to current path ,
+     the default source of choice is github/gitignore youc can privde your source url with source (-s) flag. 
+     If you want to append to existing .gitignore content specy -a append flag. ommit -a if want to recreate .gitignore file
+     call it right way  with argument < name of .gittignore as node, python, etc > or -h option to show this message 
+     Dependencies have to be installed before use: jq  (https://stedolan.github.io/jq/)
+     Comments to: @tst32
 EOF
+exit 0
 }
 
-usage(){
-    cat <<EOF
+usage() {
+  cat <<EOF
 usage:
      gh gitignore < name of .gittignore template as node, python, etc > -- will search <name> for download at github/gitignore repository
      advanced use:
-     gh gitignore -s <repowner/reponame> < name of .gittignore as node, python, etc will search <name> for download at repowner/reponame repository>
+     gh gitignore -a  -s <repowner/reponame> -p < pattern of .gittignore as node, python, etc >  will search <name> for download at repowner/reponame repository> then  append to content of local .gitignore file
 EOF
 }
 
- if [ $# -eq 0 ]; then
-     help
-     exit 1
- fi
-
-command -v gh >/dev/null 2>&1 || { echo >&2 "require gh (https://cli.github.com/) tool, but it's not installed.  Aborting."; exit 1; }
-command -v jq >/dev/null 2>&1 || { echo >&2 "require jq (https://stedolan.github.io/jq/) tool, but it's not installed.  Aborting."; exit 1; }
-
- argument=${args[0]}
- if  [[ $argument == *"--help"* || $argument == *"-h"* ]]; then
-     usage
- exit 1
- fi
-
- if  [[ $argument == *"--source"* || $argument == *"-s"* ]]; then
-     
-     REPO=${args[1]}
-     printf "provided custom source  - $REPO "
-     argument=${args[2]} 
-     printf "will search for $argument "  
- fi
-
- if [[ -z "$REPO" ]]; then
-   REPO="github/gitignore"
-   printf "in default source github/gitignore, will search for $argument"
- fi
-
-CONTENT=$(gh api repos/${REPO}/contents --jq .[].name | grep ".gitignore" |tr '\n' ', ')
-NAME=$(gh api repos/${REPO}/contents --jq .[].name | grep ".gitignore" | grep -i "$argument")
-
-printf "try to found $NAME"
-echo -e  ""
-
- if [[ ${NAME} = "" ]];then
-  echo -e "error: no file selected.\n\n Please select .gitignore file to download. look at possible options:"
-  printf "$CONTENT \b\b\b"
-  echo -e  ""
+if [ $# -eq 0 ]; then
+  usage
   exit 1
- fi
+fi
 
-curl -s https://raw.githubusercontent.com/${REPO}/master/${NAME} > .gitignore
+command -v gh >/dev/null 2>&1 || {
+  echo >&2 "require gh (https://cli.github.com/) tool, but it's not installed.  Aborting."
+  exit 1
+}
+command -v jq >/dev/null 2>&1 || {
+  echo >&2 "require jq (https://stedolan.github.io/jq/) tool, but it's not installed.  Aborting."
+  exit 1
+}
 
-echo "✓ Downloaded ${NAME} to ${PWD}/.gitignore"
+while getopts s:p:h:a: flag; do
+  case "${flag}" in
+  s) REPO=${OPTARG} ;;
+  p) PATTERN=${OPTARG} ;;
+  h) help ;;
+  a) APPEND=-a ;;
+  esac
+done
+
+while [[ $# -gt 0 ]]; do
+  key="$1"
+
+  if [[ "$key" == --* || "$key" == -* ]]; then
+    echo 'this'
+  else
+    echo 'then'
+    echo $key
+    PATTERN=$key
+    printf "I ${RED}love ${GREEN}Stack Overflow ${NC}\n"
+  fi
+  shift
+done
+
+
+if [[ -z "$REPO" ]]; then
+  REPO="github/gitignore"
+  printf " in default source github/gitignore, will search for $PATTERN  "
+fi
+
+CONTENT=$(gh api repos/${REPO}/contents --jq .[].name | grep ".gitignore" | tr '\n' ', ')
+NAME=$(gh api repos/${REPO}/contents --jq .[].name | grep ".gitignore" | grep -i "$PATTERN")
+
+printf "try to found $PATTERN"
+echo -e ""
+
+if [[ ${PATTERN} = "" ]]; then
+  echo -e " error: no file selected.\n\n Please select .gitignore file to download. look at possible options: "
+  printf "$CONTENT \b\b\b"
+  echo -e ""
+  exit 1
+fi
+
+curl -s https://raw.githubusercontent.com/${REPO}/master/${NAME} | tee ${APPEND} .gitignore
+echo -e ""
+echo -e "${GREEN}\n✓${NC} Downloaded ${NAME} to ${PWD}/.gitignore"
