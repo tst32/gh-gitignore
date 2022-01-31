@@ -4,28 +4,52 @@ NC='\033[0m' # No Color
 GREEN='\033[0;32m'
 APPEND=
 args=("$@")
-mode='>'
 set -e
+
+longopt(){
+while [[ $# -gt 0 ]]; do
+  key="$1"
+  case "${key}" in
+   *source*|s) REPO="$2" ;;
+   *append*|s) APPEND=-a ;;
+   *pattern*|s) PATTERN="$2" ;; 
+   *help*|h) help ;;
+  :) break ;;
+  esac
+  shift
+done
+printf "I ${RED}love ${GREEN}Stack Overflow ${NC}\n"
+}
+
 
 help() {
   cat <<EOF
-Info:
-     this bash script copy .gitignore file from  available web source to current path ,
+Help:
+     this bash script copy .gitignore file from  available web source to current path,
      the default source of choice is github/gitignore youc can privde your source url with source (-s) flag. 
-     If you want to append to existing .gitignore content specy -a append flag. ommit -a if want to recreate .gitignore file
-     call it right way  with argument < name of .gittignore as node, python, etc > or -h option to show this message 
-     Dependencies have to be installed before use: jq  (https://stedolan.github.io/jq/)
-     Comments to: @tst32
+     If you want to append to existing .gitignore content specy -a append flag. skip -a if want to recreate .gitignore file
+     call it right way  with argument < name of .gitignore as node, python, etc > or -h option to show this message 
+
+list of options:
+     -a (--append) Append to .gitignore
+     -s (--source) repo/reponame as source to search .gitignore pattern 
+     -h (--help)   show this help    
+
+Dependencies have to be installed before use: jq  (https://stedolan.github.io/jq)
+Comments to: @tst32
 EOF
 exit 0
 }
 
+
+
 usage() {
   cat <<EOF
 usage:
-     gh gitignore < name of .gittignore template as node, python, etc > -- will search <name> for download at github/gitignore repository
-     advanced use:
-     gh gitignore -a  -s <repowner/reponame> -p < pattern of .gittignore as node, python, etc >  will search <name> for download at repowner/reponame repository> then  append to content of local .gitignore file
+     if you want fastly create a .gitignore in current project folder from a usefull guthub templates
+     then try gh-gitignore command-line tool. With this you can combine by append as many templates 
+     as you want, and use custom source to search templates for, see more by 
+     gh gitignore --help
 EOF
 }
 
@@ -43,33 +67,24 @@ command -v jq >/dev/null 2>&1 || {
   exit 1
 }
 
-while getopts s:p:h:a: flag; do
+while getopts s:p:ha-: flag; do
   case "${flag}" in
   s) REPO=${OPTARG} ;;
   p) PATTERN=${OPTARG} ;;
   h) help ;;
   a) APPEND=-a ;;
+  -) longopt ${OPTARG};;
+  :) longopt "$@" ;;
   esac
 done
 
-while [[ $# -gt 0 ]]; do
-  key="$1"
 
-  if [[ "$key" == --* || "$key" == -* ]]; then
-    echo 'this'
-  else
-    echo 'then'
-    echo $key
-    PATTERN=$key
-    printf "I ${RED}love ${GREEN}Stack Overflow ${NC}\n"
-  fi
-  shift
-done
 
 
 if [[ -z "$REPO" ]]; then
   REPO="github/gitignore"
-  printf " in default source github/gitignore, will search for $PATTERN  "
+  longopt "$@"
+  printf " in default source github/gitignore, will search for ${PATTERN}  "
 fi
 
 CONTENT=$(gh api repos/${REPO}/contents --jq .[].name | grep ".gitignore" | tr '\n' ', ')
@@ -78,7 +93,7 @@ NAME=$(gh api repos/${REPO}/contents --jq .[].name | grep ".gitignore" | grep -i
 printf "try to found $PATTERN"
 echo -e ""
 
-if [[ ${PATTERN} = "" ]]; then
+if [[ ${NAME} = "" ]]; then
   echo -e " error: no file selected.\n\n Please select .gitignore file to download. look at possible options: "
   printf "$CONTENT \b\b\b"
   echo -e ""
@@ -87,4 +102,4 @@ fi
 
 curl -s https://raw.githubusercontent.com/${REPO}/master/${NAME} | tee ${APPEND} .gitignore
 echo -e ""
-echo -e "${GREEN}\n✓${NC} Downloaded ${NAME} to ${PWD}/.gitignore"
+echo -e "${GREEN}\n✓${NC} Downloaded ${PATTERN} to ${PWD}/.gitignore"
