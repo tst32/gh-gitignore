@@ -1,7 +1,7 @@
 # gh-gitignore
 
 ![screencast](https://user-images.githubusercontent.com/23115742/151840105-0420874b-f448-4030-8552-1d9746188cc5.svg)
-##  GITHUB-CLI EXTENSION **gitignore**
+###  GITHUB-CLI EXTENSION for manage **.gitignore**
 
   Allow you to download to `pwd` a gitignore template from web.
   You can use your own custom source, or download template from  
@@ -17,7 +17,7 @@ tools depends on:
 
 
 ## Install
-### these commands from terminal
+### with these terminal commands 
 
 linux flavor - ```bash gh extension install tst32/gh-gitignore```
 windows way  - ```gh extension install tst32/gh-gitignore```
