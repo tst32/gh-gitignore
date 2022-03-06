@@ -17,7 +17,7 @@ while [[ $# -gt 0 ]]; do
   :) break ;;
   esac
   shift
-done
+done 
 printf "I ${RED}love ${GREEN}Stack Overflow ${NC}\n"
 }
 
@@ -25,10 +25,12 @@ printf "I ${RED}love ${GREEN}Stack Overflow ${NC}\n"
 help() {
   cat <<EOF
 Help:
-     this bash script copy .gitignore file from  available web source to current path,
-     the default source of choice is github/gitignore youc can privde your source url with source (-s) flag. 
-     If you want to append to existing .gitignore content specy -a append flag. skip -a if want to recreate .gitignore file
-     call it right way  with argument < name of .gitignore as node, python, etc > or -h option to show this message 
+     this tool copy .gitignore file from an available url source to current path,
+     the default source of choice is oficial github/gitignore repo. you can privde 
+     your own source url with source (-s) flag. If you want to append to existing 
+     .gitignore content specy -a append flag. Otherwise, it will recreate 
+     your local .gitignore file. Specify the pattern < name of .gitignore as node, python, etc > 
+     to search the source for.  
 
 list of options:
      -a (--append)  Append to .gitignore
@@ -36,7 +38,9 @@ list of options:
      -s (--source)  repo/reponame as source where to search .gitignore pattern
      -h (--help)    show this help
 
-Dependencies have to be installed before use: jq  (https://stedolan.github.io/jq)
+For use in linux system there are dependencies have to be installed before use:
+as jq  (https://stedolan.github.io/jq) this one  parse the json output. 
+  
 Comments to: @tst32
 EOF
 exit 0
@@ -47,10 +51,10 @@ exit 0
 usage() {
   cat <<EOF
 usage:
-     if you want fastly create a .gitignore in current project folder from a usefull guthub templates
-     then try gh-gitignore command-line tool. With this you can combine by append as many templates 
-     as you want, and use custom source to search templates for, see more by 
-     gh gitignore --help
+      if you want fastly create a .gitignore in current project folder from any usefull guthub templates
+      try gh-gitignore command-line tool. With this one you can combine gitignore content by append as many 
+      templates as you want, and use custom source to search templates for, see more by 
+      gh gitignore --help
 EOF
 }
 
