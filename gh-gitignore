@@ -11,8 +11,8 @@ while [[ $# -gt 0 ]]; do
   key="$1"
   case "${key}" in
    *source*|s) REPO="$2" ;;
-   *append*|s) APPEND=-a ;;
-   *pattern*|s) PATTERN="$2" ;; 
+   *append*|a) APPEND=-a ;;
+   *pattern*|p) PATTERN="$2" ;; 
    *help*|h) help ;;
   :) break ;;
   esac
@@ -31,9 +31,10 @@ Help:
      call it right way  with argument < name of .gitignore as node, python, etc > or -h option to show this message 
 
 list of options:
-     -a (--append) Append to .gitignore
-     -s (--source) repo/reponame as source to search .gitignore pattern 
-     -h (--help)   show this help    
+     -a (--append)  Append to .gitignore
+     -p (--pattern) Pattern to search for
+     -s (--source)  repo/reponame as source where to search .gitignore pattern
+     -h (--help)    show this help
 
 Dependencies have to be installed before use: jq  (https://stedolan.github.io/jq)
 Comments to: @tst32
